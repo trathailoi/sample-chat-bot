@@ -5,6 +5,7 @@
 var Botkit = require('botkit')
 var mongoUri = process.env.MONGODB_URI || 'mongodb://localhost/botkit-demo'
 var db = require('../../config/db')({mongoUri: mongoUri})
+const Wreck = require('wreck');
 
 var controller = Botkit.facebookbot({
   debug: true,
@@ -20,6 +21,147 @@ require('./facebook_setup')(controller)
 
 // Conversation logic
 require('./conversations')(controller)
+
+
+var showFirstQuestions = function (message) {
+    var formData = {
+        "recipient":{
+            "id":""+message.user
+        },
+        "message":{
+            "text":"Bạn không phải bê đê chứ?",
+            "quick_replies":[
+                {
+                    "content_type":"text",
+                    "title":"Ừa, chuẩn đực",
+                    "payload":"chuan_duc",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-ac-pink.png"
+                },
+                {
+                    "content_type":"text",
+                    "title":"Ừa, chuẩn cái",
+                    "payload":"chuan_cai",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-wifi-pink.png"
+                }
+            ]
+        }
+    };
+
+    Wreck.post('https://graph.facebook.com/v2.6/me/messages?access_token='+process.env.FACEBOOK_PAGE_TOKEN, { payload: formData }, (err, res, payload) => {
+      /* do stuff */
+    });
+};
+
+
+var showMunSelection = function (message) {
+    var formData = {
+        "recipient":{
+            "id":""+message.user
+        },
+        "message":{
+            "text":"Mụn của bạn thuộc loại nào?",
+            "quick_replies":[
+                {
+                    "content_type":"text",
+                    "title":"Mụn cám",
+                    "payload":"mun_cam",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-ac-pink.png"
+                },
+                {
+                    "content_type":"text",
+                    "title":"Mụn đầu đen",
+                    "payload":"mun_dau_den",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-wifi-pink.png"
+                },
+                {
+                    "content_type":"text",
+                    "title":"Mụn Đầu Trắng",
+                    "payload":"mun_dau_trang",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-ac-pink.png"
+                },
+                {
+                    "content_type":"text",
+                    "title":"Mụn Sưng Viêm",
+                    "payload":"mun_sung_viem",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-wifi-pink.png"
+                }
+            ]
+        }
+    };
+
+    Wreck.post('https://graph.facebook.com/v2.6/me/messages?access_token='+process.env.FACEBOOK_PAGE_TOKEN, { payload: formData }, (err, res, payload) => {
+      /* do stuff */
+    });
+}
+
+var showDaSelection = function (message) {
+    var formData = {
+        "recipient":{
+            "id":""+message.user
+        },
+        "message":{
+            "text":"Da của bạn thuộc loại nào?",
+            "quick_replies":[
+                {
+                    "content_type":"text",
+                    "title":"Da dầu nhiều",
+                    "payload":"da_dau_nhieu",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-ac-pink.png"
+                },
+                {
+                    "content_type":"text",
+                    "title":"Da dầu ít",
+                    "payload":"da_dau_it",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-wifi-pink.png"
+                },
+                {
+                    "content_type":"text",
+                    "title":"Da dầu nhiều ở vùng chữ T, khô hai bên má",
+                    "payload":"da_chu_T",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-ac-pink.png"
+                },
+                {
+                    "content_type":"text",
+                    "title":"Da nhạy cảm",
+                    "payload":"da_nhay_cam",
+                    "image_url":"https://www.upinns.com/media/images/page/five-ame-wifi-pink.png"
+                }
+            ]
+        }
+    };
+
+    Wreck.post('https://graph.facebook.com/v2.6/me/messages?access_token='+process.env.FACEBOOK_PAGE_TOKEN, { payload: formData }, (err, res, payload) => {
+      /* do stuff */
+    });
+}
+
+var showKetQua = function (message) {
+    console.log('và kết quả là :');
+};
+
+var detectPayload = function (message) {
+
+    switch (message.payload){
+        case 'chuan_duc':
+        case 'chuan_cai':
+            showMunSelection(message);
+            break;
+        case 'mun_cam':
+        case 'mun_dau_den':
+        case 'mun_dau_trang':
+        case 'mun_sung_viem':
+            showDaSelection(message);
+            break;
+        case 'da_dau_it':
+        case 'da_dau_nhieu':
+        case 'da_nhay_cam':
+        case 'da_chu_T':
+            showKetQua(message);
+            break;
+    }
+};
+
+
 
 // this function processes the POST request to the webhook
 var handler = function (obj) {
@@ -46,6 +188,14 @@ var handler = function (obj) {
 
           // save if user comes from m.me adress or Facebook search
           create_user_if_new(facebook_message.sender.id, facebook_message.timestamp)
+          
+          if (facebook_message.message.quick_reply){
+            var tmpMessage = message;
+            tmpMessage.payload = facebook_message.message.quick_reply.payload;
+            detectPayload(tmpMessage); 
+          }else{
+            // showFirstQuestions(message);
+          }
 
           controller.receiveMessage(bot, message)
         }
@@ -61,6 +211,8 @@ var handler = function (obj) {
 
             // save if user comes from "Send to Messenger"
           create_user_if_new(facebook_message.sender.id, facebook_message.timestamp)
+          
+          showFirstQuestions(message);
 
           controller.trigger('facebook_optin', [bot, message])
         }
@@ -78,14 +230,16 @@ var handler = function (obj) {
 
           controller.trigger('facebook_postback', [bot, message])
 
-          message = {
-            text: facebook_message.postback.payload,
-            user: facebook_message.sender.id,
-            channel: facebook_message.sender.id,
-            timestamp: facebook_message.timestamp
-          }
+            detectPayload(message);
+            
+          // message = {
+          //   text: facebook_message.postback.payload,
+          //   user: facebook_message.sender.id,
+          //   channel: facebook_message.sender.id,
+          //   timestamp: facebook_message.timestamp
+          // }
 
-          controller.receiveMessage(bot, message)
+          // controller.receiveMessage(bot, message)
         }
         // message delivered callback
         else if (facebook_message.delivery) {

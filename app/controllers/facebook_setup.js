@@ -47,13 +47,13 @@ module.exports = function (controller) {
     'call_to_actions': [
       {
         'type': 'postback',
-        'title': 'Item 1',
-        'payload': 'Item 1'
+        'title': 'Dưa hấu',
+        'payload': 'dua_hau'
       },
       {
         'type': 'postback',
-        'title': 'Item 2',
-        'payload': 'Item 2'
+        'title': 'Cơm chiên',
+        'payload': 'com_chien'
       }
     ]
   }
