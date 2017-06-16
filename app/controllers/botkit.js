@@ -16,6 +16,16 @@ var controller = Botkit.facebookbot({
 
 var bot = controller.spawn({})
 
+// // Retrieve
+// var MongoClient = require('mongodb').MongoClient;
+
+// // Connect to the db
+// MongoClient.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
+//   if(!err) {
+//     console.log("We are connected");
+//   }
+// });
+
 // SETUP
 require('./facebook_setup')(controller)
 
@@ -24,6 +34,9 @@ require('./conversations')(controller)
 
 
 var showFirstQuestions = function (message) {
+  
+    
+  
     var formData = {
         "recipient":{
             "id":""+message.user
@@ -143,7 +156,7 @@ var detectPayload = function (message) {
 
     switch (message.payload){
         case 'chuan_duc':
-        case 'chuan_cai':
+        case 'chuan_cai': 
             showMunSelection(message);
             break;
         case 'mun_cam':
