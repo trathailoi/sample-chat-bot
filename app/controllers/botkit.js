@@ -35,8 +35,6 @@ require('./conversations')(controller)
 
 var showFirstQuestions = function (message) {
   
-    
-  
     var formData = {
         "recipient":{
             "id":""+message.user

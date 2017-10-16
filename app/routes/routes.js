@@ -20,6 +20,7 @@ module.exports = function (app) {
   })
 
   app.post('/webhook', function (req, res) {
+    console.log('req111111111111', req);
     facebook_handler(req.body)
 
     res.send('ok')
